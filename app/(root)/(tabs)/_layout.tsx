@@ -41,7 +41,7 @@ const TabsLayout = () => {
           paddingBottom: 0,
           marginHorizontal: 20,
           marginBottom: 20,
-          //   overflow: "hidden",
+          overflow: "hidden",
           height: 78,
           position: "absolute",
           display: "flex",
