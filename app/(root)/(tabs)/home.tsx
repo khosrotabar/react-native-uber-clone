@@ -158,8 +158,8 @@ const HomePage = () => {
       let location = await Location.getCurrentPositionAsync({});
 
       const address = await Location.reverseGeocodeAsync({
-        latitude: location.coords.latitude!,
-        longitude: location.coords.longitude!,
+        latitude: location.coords?.latitude!,
+        longitude: location.coords?.longitude!,
       });
 
       setUserLocation({
@@ -170,7 +170,6 @@ const HomePage = () => {
     };
 
     handleLocation();
-    router.push("/(root)/find-ride");
   }, []);
 
   return (
