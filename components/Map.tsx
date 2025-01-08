@@ -3,6 +3,11 @@ import { calculateRegion, generateMarkersFromData } from "@/lib/map";
 import { useDriverStore, useLocationStore } from "@/store";
 import { MarkerData } from "@/types/type";
 import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  ActivityIndicatorComponent,
+  View,
+} from "react-native";
 import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
 
 const drivers = [
@@ -61,12 +66,23 @@ const Map = () => {
   } = useLocationStore();
   const { selectedDriver, setDrivers } = useDriverStore();
   const [markers, setMarkers] = useState<MarkerData[]>([]);
-  const region = calculateRegion({
-    userLatitude,
-    userLongitude,
-    destinationLatitude,
-    destinationLongitude,
-  });
+  const [region, setRegion] = useState<{
+    latitude: number;
+    longitude: number;
+    latitudeDelta: number;
+    longitudeDelta: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const newRegion = calculateRegion({
+      userLatitude,
+      userLongitude,
+      destinationLatitude,
+      destinationLongitude,
+    });
+
+    setRegion(newRegion);
+  }, [userLatitude, userLongitude]);
 
   useEffect(() => {
     if (Array.isArray(drivers)) {
@@ -82,33 +98,43 @@ const Map = () => {
     }
   }, [drivers]);
 
+  if (!region) {
+    return (
+      <View className="w-full h-full items-center justify-center">
+        <ActivityIndicator color="#000" />
+      </View>
+    );
+  }
+
   return (
-    <MapView
-      provider={PROVIDER_DEFAULT}
-      style={{ width: "100%", height: "100%", borderRadius: 16 }}
-      tintColor="black"
-      mapType="standard"
-      showsPointsOfInterest={false}
-      // showsUserLocation={true}
-      userInterfaceStyle="light"
-      initialRegion={region}
-    >
-      {markers.map((marker) => (
-        <Marker
-          key={marker.id}
-          coordinate={{
-            latitude: marker.latitude,
-            longitude: marker.longitude,
-          }}
-          title={marker.title}
-          image={
-            selectedDriver === +(marker.id ?? "0")
-              ? icons.selectedMarker
-              : icons.marker
-          }
-        />
-      ))}
-    </MapView>
+    <View className="w-full h-full rounded-[16px] overflow-hidden">
+      <MapView
+        provider={PROVIDER_DEFAULT}
+        style={{ width: "100%", height: "100%", borderRadius: 16 }}
+        tintColor="black"
+        mapType="standard"
+        showsPointsOfInterest={false}
+        showsUserLocation={true}
+        userInterfaceStyle="light"
+        initialRegion={region}
+      >
+        {markers.map((marker) => (
+          <Marker
+            key={marker.id}
+            coordinate={{
+              latitude: marker.latitude,
+              longitude: marker.longitude,
+            }}
+            title={marker.title}
+            image={
+              selectedDriver === +(marker.id ?? "0")
+                ? icons.selectedMarker
+                : icons.marker
+            }
+          />
+        ))}
+      </MapView>
+    </View>
   );
 };
 
