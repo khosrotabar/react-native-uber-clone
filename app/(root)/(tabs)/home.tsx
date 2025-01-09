@@ -8,6 +8,7 @@ import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Image,
   Text,
@@ -156,16 +157,21 @@ const HomePage = () => {
       }
 
       let location = await Location.getCurrentPositionAsync({});
+      let address: Location.LocationGeocodedAddress[] = [];
 
-      const address = await Location.reverseGeocodeAsync({
-        latitude: location.coords?.latitude!,
-        longitude: location.coords?.longitude!,
-      });
+      try {
+        address = await Location.reverseGeocodeAsync({
+          latitude: location.coords?.latitude!,
+          longitude: location.coords?.longitude!,
+        });
+      } catch (error) {
+        console.log(error);
+      }
 
       setUserLocation({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
-        address: `${address[0].name}, ${address[0].region}`,
+        address: `${address[0]?.name}, ${address[0]?.region}`,
       });
     };
 

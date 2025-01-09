@@ -1,16 +1,21 @@
 import { icons } from "@/constants";
 import { router } from "expo-router";
-import { ReactNode } from "react";
+import { ReactNode, useRef } from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import Map from "./Map";
+import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const RideLayout = ({
   title,
   children,
 }: {
-  title?: string;
+  title: string;
   children: ReactNode;
 }) => {
+  const BottomSheetRef = useRef<BottomSheet>(null);
+
   return (
     <GestureHandlerRootView>
       <View className="flex-1 bg-white">
@@ -32,7 +37,26 @@ const RideLayout = ({
               {title || "Go Back"}
             </Text>
           </View>
+
+          <Map />
         </View>
+
+        <BottomSheet
+          keyboardBehavior="extend"
+          ref={BottomSheetRef}
+          snapPoints={["40%", "85%"]}
+          index={0}
+        >
+          <BottomSheetView style={{ flex: 1, padding: 20 }}>
+            <SafeAreaView
+              className="mb-10"
+              edges={["bottom"]}
+              style={{ flex: 1 }}
+            >
+              {children}
+            </SafeAreaView>
+          </BottomSheetView>
+        </BottomSheet>
       </View>
     </GestureHandlerRootView>
   );
