@@ -10,9 +10,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const RideLayout = ({
   title,
   children,
+  snapPoints,
 }: {
   title: string;
   children: ReactNode;
+  snapPoints: string[];
 }) => {
   const BottomSheetRef = useRef<BottomSheet>(null);
 
@@ -44,7 +46,7 @@ const RideLayout = ({
         <BottomSheet
           keyboardBehavior="extend"
           ref={BottomSheetRef}
-          snapPoints={["40%", "85%"]}
+          snapPoints={snapPoints}
           index={0}
         >
           <BottomSheetView style={{ flex: 1, padding: 20 }}>
