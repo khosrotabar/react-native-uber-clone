@@ -1,10 +1,43 @@
+import CustomButton from "@/components/CustomButton";
 import InputField from "@/components/InputField";
-import { useUser } from "@clerk/clerk-expo";
-import { Image, ScrollView, Text, View } from "react-native";
+import ProfileInput from "@/components/ProfileInput";
+import { images } from "@/constants";
+import { fetchAPI } from "@/lib/fetch";
+import { useAuth, useUser } from "@clerk/clerk-expo";
+import { useState } from "react";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Profile = () => {
   const { user } = useUser();
+  const { userId } = useAuth();
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const handleSubmit = async () => {
+    setLoading(true);
+
+    const response = await fetchAPI("/(api)/update-profile", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        firstName: firstName,
+        clerkUserId: userId,
+      }),
+    });
+
+    try {
+      await user?.update({ firstName, lastName });
+    } catch (error) {
+      console.log(error);
+    }
+
+    setLoading(false);
+  };
 
   return (
     <SafeAreaView className="flex-1">
@@ -26,20 +59,20 @@ const Profile = () => {
 
         <View className="flex flex-col items-start justify-center bg-white rounded-lg shadow-sm shadow-neutral-300 px-5 py-3">
           <View className="flex flex-col items-start justify-start w-full">
-            <InputField
+            <ProfileInput
               label="First name"
               placeholder={user?.firstName || "Not Found"}
-              containerStyle="w-full"
-              inputStyle="p-3.5"
-              editable={false}
+              image={images.edit}
+              value={firstName}
+              onChange={setFirstName}
             />
 
-            <InputField
+            <ProfileInput
               label="Last name"
               placeholder={user?.lastName || "Not Found"}
-              containerStyle="w-full"
-              inputStyle="p-3.5"
-              editable={false}
+              image={images.edit}
+              value={lastName}
+              onChange={setLastName}
             />
 
             <InputField
@@ -52,12 +85,21 @@ const Profile = () => {
               editable={false}
             />
 
-            <InputField
+            {/* <ProfileInput
               label="Phone"
               placeholder={user?.primaryPhoneNumber?.phoneNumber || "Not Found"}
-              containerStyle="w-full"
-              inputStyle="p-3.5"
-              editable={false}
+              image={images.edit}
+              value={phone}
+              onChange={setPhone}
+            /> */}
+
+            <CustomButton
+              title="Save chagnes"
+              className="w-full mt-5"
+              activeOpacity={0.7}
+              onPress={handleSubmit}
+              disabled={loading || !firstName || !lastName}
+              loading={loading}
             />
           </View>
         </View>
